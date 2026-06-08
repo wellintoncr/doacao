@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="masthead">
+    <span class="eyebrow">Doação semanal</span>
+    <h1 class="title">{{ selected|date:"l, j \d\e F" }}</h1>
+    <p class="lead">Escolha um domingo e diga ao grupo o que você vai levar.</p>
+</div>
+
+<nav class="seg sundays" aria-label="Próximos domingos">
+    {% for sunday in sundays %}
+    <a href="?date={{ sunday|date:'Y-m-d' }}"
+       {% if sunday == selected %}class="active" aria-current="date"{% endif %}>
+        {{ sunday|date:"j/m" }}
+    </a>
+    {% endfor %}
+</nav>
+
+<div class="grid autofit items">
+    {% for summary in summaries %}
+        {% include "donation/partials/item_card.html" with summary=summary selected=selected form=pledge_form %}
+    {% empty %}
+    <div class="empty">
+        <h4>Nenhum item cadastrado</h4>
+        <p>A lista de doações ainda não foi configurada. Peça a um organizador para cadastrar itens no admin.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

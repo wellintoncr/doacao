@@ -1,0 +1,13 @@
+{% if href %}
+<a href="{{ href }}"
+   class="btn {% if variant == 'danger' %}btn-danger{% elif variant == 'secondary' %}btn-secondary{% elif variant == 'ghost' %}btn-ghost{% else %}btn-primary{% endif %} {{ attrs.class }}"
+   {{ attrs }}>
+    {{ slot }}
+</a>
+{% else %}
+<button type="{{ type|default:'submit' }}"
+        class="btn {% if variant == 'danger' %}btn-danger{% elif variant == 'secondary' %}btn-secondary{% elif variant == 'ghost' %}btn-ghost{% else %}btn-primary{% endif %} {{ attrs.class }}"
+        {{ attrs }}>
+    {{ slot }}
+</button>
+{% endif %}

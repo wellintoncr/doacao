@@ -1,0 +1,54 @@
+<div class="card item-card" id="item-{{ summary.item.pk }}">
+    <div class="item-head">
+        <h2 class="item-name">{{ summary.item.name }}</h2>
+        {% if summary.is_satisfied %}
+        <span class="badge b-suc">Completo</span>
+        {% else %}
+        <span class="badge b-pri">faltam {{ summary.remaining }} {{ summary.item.unit }}</span>
+        {% endif %}
+    </div>
+    <div class="progress" role="progressbar" aria-valuenow="{{ summary.total }}" aria-valuemin="0" aria-valuemax="{{ summary.item.target_quantity }}">
+        <i style="width: {{ summary.percent }}%"></i>
+    </div>
+    <p class="help">{{ summary.total }} de {{ summary.item.target_quantity }} {{ summary.item.unit }} prometidos</p>
+    {% if summary.pledges %}
+    <ul class="pledges">
+        {% for pledge in summary.pledges %}
+        <li class="pledge-row">
+            <span><b>{{ pledge.person_name }}</b> — {{ pledge.quantity }} {{ summary.item.unit }}</span>
+            <span class="row">
+                <a class="btn btn-ghost btn-sm" href="{% url 'pledge-edit' pledge.pk %}">Editar</a>
+                <form method="post" action="{% url 'pledge-delete' pledge.pk %}"
+                      hx-post="{% url 'pledge-delete' pledge.pk %}"
+                      hx-target="#item-{{ summary.item.pk }}" hx-swap="outerHTML"
+                      hx-confirm="Remover esta doação?">
+                    {% csrf_token %}
+                    <button class="btn btn-ghost btn-sm danger">Remover</button>
+                </form>
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <form class="pledge-form" method="post" action="{% url 'pledge-add' summary.item.pk %}"
+          hx-post="{% url 'pledge-add' summary.item.pk %}"
+          hx-target="#item-{{ summary.item.pk }}" hx-swap="outerHTML">
+        {% csrf_token %}
+        <input type="hidden" name="date" value="{{ selected|date:'Y-m-d' }}">
+        <div class="row">
+            <input class="inp qty" type="number" name="quantity" min="1" required
+                   aria-label="Quantidade" placeholder="Qtd."
+                   value="{{ form.quantity.value|default:'' }}">
+            <input class="inp" type="text" name="person_name" maxlength="60" required data-remember-name
+                   aria-label="Nome" placeholder="Seu nome"
+                   value="{{ form.person_name.value|default:'' }}">
+            <button type="submit" class="btn btn-primary">Vou levar</button>
+        </div>
+        {% if form.errors %}
+        <div class="field error">
+            {% for error in form.quantity.errors %}<p class="help">{{ error }}</p>{% endfor %}
+            {% for error in form.person_name.errors %}<p class="help">{{ error }}</p>{% endfor %}
+        </div>
+        {% endif %}
+    </form>
+</div>

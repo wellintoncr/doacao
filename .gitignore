@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Django
+staticfiles/
+
+*.md
+!README.md

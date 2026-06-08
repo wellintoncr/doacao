@@ -1,0 +1,62 @@
+[project]
+name = "doacao"
+version = "0.1.0"
+description = "Weekly donation drive organizer"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django>=6.0.3",
+    "django-environ>=0.12.0",
+    "django-htmx>=1.21.0",
+    "django-cotton>=1.0.0",
+    "django-browser-reload>=1.18.0",
+    "whitenoise>=6.9.0",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.0.0",
+    "ruff>=0.11.0",
+    "pytest>=8.0.0",
+    "pytest-django>=4.9.0",
+    "pytest-cov>=7.1.0",
+    "pytest-xdist>=3.8.0",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py"]
+addopts = "-n auto"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "donation", "config"]
+
+[tool.coverage.run]
+source = ["core", "donation", "config"]
+branch = false
+parallel = true
+omit = [
+    "config/wsgi.py",
+    "config/wsgi_pa.py",
+    "config/urls.py",
+    "manage.py",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+]

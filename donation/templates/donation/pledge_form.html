@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Editar doação — Doação{% endblock %}
+
+{% block content %}
+<div class="masthead">
+    <h1 class="title">Editar doação</h1>
+    <p class="lead">{{ pledge.item.name }} — {{ pledge.event.date|date:"l, j \d\e F" }}</p>
+</div>
+<form method="post" class="card stack form-page">
+    {% csrf_token %}
+    <c-form-field :field="form.quantity" />
+    <c-form-field :field="form.person_name" />
+    <div class="row">
+        <c-button>Salvar</c-button>
+        <c-button variant="secondary" href="{% url 'event-detail' %}?date={{ pledge.event.date|date:'Y-m-d' }}">Cancelar</c-button>
+    </div>
+</form>
+{% endblock %}

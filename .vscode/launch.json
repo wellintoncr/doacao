@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Django Dev Server",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/manage.py",
+      "args": [
+        "runserver",
+        "8003"
+      ],
+      "django": true,
+      "env": {
+        "DJANGO_SETTINGS_MODULE": "config.settings"
+      },
+      "justMyCode": false
+    },
+    {
+      "name": "Tailwind (docker compose up)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "docker compose up",
+      "cwd": "${workspaceFolder}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Server + Tailwind",
+      "configurations": [
+        "Django Dev Server",
+        "Tailwind (docker compose up)"
+      ]
+    }
+  ]
+}

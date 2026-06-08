@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br" data-emotion="neutral" data-color="green">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Doação{% endblock %}</title>
+    <meta name="theme-color" content="#F7F8F9">
+    <meta name="description" content="Organize a doação semanal do grupo">
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <script src="{% static 'js/htmx.min.js' %}"></script>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a href="{% url 'event-detail' %}" class="brand">Doação</a>
+        </div>
+    </header>
+    <main class="wrap">
+        {% block content %}{% endblock %}
+    </main>
+    <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>

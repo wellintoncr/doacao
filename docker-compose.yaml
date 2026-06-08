@@ -1,0 +1,8 @@
+services:
+  tailwind:
+    build:
+      context: .
+      dockerfile: tailwind.dockerfile
+    volumes:
+      - .:/app
+    command: bash -c "tailwindcss --watch=always -i /app/tailwind/input.css -o /app/static/css/output.css"

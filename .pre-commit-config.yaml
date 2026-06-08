@@ -1,0 +1,31 @@
+fail_fast: true
+
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-fix
+        name: ruff (fix)
+        entry: uv run ruff check --fix --exit-non-zero-on-fix
+        language: system
+        types: [python]
+
+      - id: ruff-format
+        name: ruff (format)
+        entry: uv run ruff format
+        language: system
+        types: [python]
+
+      - id: collectstatic
+        name: collectstatic (check)
+        entry: uv run python manage.py collectstatic --noinput --clear
+        language: system
+        files: '^static/'
+        pass_filenames: false
+
+      - id: pytest
+        name: pytest (coverage 100%)
+        entry: uv run pytest --tb=short -q --cov --cov-report=term-missing:skip-covered --dist=loadfile
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
