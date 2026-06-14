@@ -1,4 +1,4 @@
-// guarda o nome do voluntário pra ele digitar só uma vez em cada aparelho
+// preenche os campos escondidos de nome com o que tá salvo no perfil
 function fillNames(root) {
     var name = localStorage.getItem('person_name');
     if (!name) return;
@@ -11,9 +11,11 @@ document.body.addEventListener('htmx:afterSwap', function (event) {
     fillNames(event.target);
 });
 
-document.body.addEventListener('submit', function (event) {
-    var input = event.target.querySelector('input[data-remember-name]');
-    if (input && input.value) localStorage.setItem('person_name', input.value);
-});
-
 fillNames(document);
+
+// mostra quem tá logado (bom, "logado") no link do perfil
+var profileLink = document.getElementById('profile-link');
+var profileName = localStorage.getItem('person_name');
+if (profileLink && profileName) {
+    profileLink.textContent = 'Perfil · ' + profileName;
+}

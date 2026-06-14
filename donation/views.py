@@ -27,6 +27,12 @@ def _render_item_card(request, item, selected, form=None):
     )
 
 
+class ProfileView(View):
+    def get(self, request):
+        # a página só renderiza; o nome em si vive no localStorage (js/profile.js)
+        return render(request, "donation/profile.html")
+
+
 class EventDetailView(View):
     def get(self, request):
         sundays = upcoming_sundays()

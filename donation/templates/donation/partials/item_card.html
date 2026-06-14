@@ -39,8 +39,7 @@
             <input class="inp qty" type="number" name="quantity" min="1" required
                    aria-label="Quantidade" placeholder="Qtd."
                    value="{{ form.quantity.value|default:'' }}">
-            <input class="inp" type="text" name="person_name" maxlength="60" required data-remember-name
-                   aria-label="Nome" placeholder="Seu nome"
+            <input type="hidden" name="person_name" data-remember-name
                    value="{{ form.person_name.value|default:'' }}">
             <button type="submit" class="btn btn-primary">Vou levar</button>
         </div>
