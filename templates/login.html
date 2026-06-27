@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Entrar — Doação{% endblock %}
+
+{% block content %}
+<div class="masthead">
+    <span class="eyebrow">Doação semanal</span>
+    <h1 class="title">Entrar</h1>
+    <p class="lead">Entre com sua conta ou crie uma nova pra participar das doações.</p>
+</div>
+<div class="grid cols-2">
+    <form method="post" action="{% url 'login' %}" class="card stack">
+        <h2 class="card-title">Já tenho conta</h2>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        {% for error in form.non_field_errors %}
+        <div class="field error"><p class="help">{{ error }}</p></div>
+        {% endfor %}
+        <c-form-field :field="form.username" />
+        <c-form-field :field="form.password" />
+        <div class="row">
+            <button type="submit" class="btn btn-primary">Entrar</button>
+        </div>
+    </form>
+    <form method="post" action="{% url 'register' %}" class="card stack">
+        <h2 class="card-title">Criar conta</h2>
+        {% csrf_token %}
+        {% for error in register_form.non_field_errors %}
+        <div class="field error"><p class="help">{{ error }}</p></div>
+        {% endfor %}
+        <c-form-field :field="register_form.name" />
+        <c-form-field :field="register_form.email" />
+        <c-form-field :field="register_form.password1" />
+        <c-form-field :field="register_form.password2" />
+        <div class="row">
+            <button type="submit" class="btn btn-secondary">Criar conta</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

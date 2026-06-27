@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Perfil — Doação{% endblock %}
+
+{% block content %}
+<div class="masthead">
+    <span class="eyebrow">Perfil</span>
+    <h1 class="title">Sua conta</h1>
+    <p class="lead">Atualize seu nome ou troque a senha. O nome aparece ao lado do que você prometeu levar.</p>
+</div>
+<div class="grid cols-2">
+    <form method="post" action="{% url 'profile' %}" class="card stack">
+        <h2 class="card-title">Nome</h2>
+        {% csrf_token %}
+        <c-form-field :field="name_form.name" />
+        <div class="row">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+    </form>
+    <form method="post" action="{% url 'password-change' %}" class="card stack">
+        <h2 class="card-title">Trocar senha</h2>
+        {% csrf_token %}
+        {% for error in password_form.non_field_errors %}
+        <div class="field error"><p class="help">{{ error }}</p></div>
+        {% endfor %}
+        <c-form-field :field="password_form.old_password" />
+        <c-form-field :field="password_form.new_password1" />
+        <c-form-field :field="password_form.new_password2" />
+        <div class="row">
+            <button type="submit" class="btn btn-secondary">Trocar senha</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/profile.js' %}"></script>{% endblock %}

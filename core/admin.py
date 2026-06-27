@@ -1,6 +1,18 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
 from .models import User
 
-admin.site.register(User, UserAdmin)
+
+@admin.register(User)
+class UserAdmin(DjangoUserAdmin):
+    ordering = ["email"]
+    list_display = ["email", "name", "is_staff"]
+    search_fields = ["email", "name"]
+    fieldsets = (
+        (None, {"fields": ("email", "password")}),
+        ("Informações pessoais", {"fields": ("name",)}),
+        ("Permissões", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
+        ("Datas", {"fields": ("last_login", "date_joined")}),
+    )
+    add_fieldsets = ((None, {"classes": ("wide",), "fields": ("email", "name", "password1", "password2")}),)

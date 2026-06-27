@@ -434,6 +434,14 @@
   .autofit {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }
+  .cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 720px) {
+    .cols-2 {
+      grid-template-columns: 1fr;
+    }
+  }
   .row {
     display: flex;
     flex-wrap: wrap;
@@ -587,6 +595,24 @@
   }
   .field.error .help {
     color: var(--danger-text);
+  }
+  .alert {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    font-size: var(--fs-sm);
+  }
+  .a-suc {
+    background: var(--success-soft);
+    color: var(--success-text);
+  }
+  .a-dang {
+    background: var(--danger-soft);
+    color: var(--danger-text);
+  }
+  .messages {
+    margin-bottom: var(--gap);
   }
   .progress {
     height: 8px;

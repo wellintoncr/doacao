@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
@@ -27,13 +28,7 @@ def _render_item_card(request, item, selected, form=None):
     )
 
 
-class ProfileView(View):
-    def get(self, request):
-        # a página só renderiza; o nome em si vive no localStorage (js/profile.js)
-        return render(request, "donation/profile.html")
-
-
-class EventDetailView(View):
+class EventDetailView(LoginRequiredMixin, View):
     def get(self, request):
         sundays = upcoming_sundays()
         selected = parse_sunday(request.GET.get("date")) or sundays[0]
@@ -50,7 +45,7 @@ class EventDetailView(View):
         )
 
 
-class PledgeCreateView(View):
+class PledgeCreateView(LoginRequiredMixin, View):
     def post(self, request, item_pk):
         item = get_object_or_404(Item, pk=item_pk, is_active=True)
         selected = parse_sunday(request.POST.get("date"))
@@ -70,7 +65,7 @@ class PledgeCreateView(View):
         return redirect(_event_url(selected))
 
 
-class PledgeUpdateView(View):
+class PledgeUpdateView(LoginRequiredMixin, View):
     def get(self, request, pk):
         pledge = get_object_or_404(Pledge, pk=pk)
         return self._render_form(request, pledge, PledgeForm(instance=pledge))
@@ -87,7 +82,7 @@ class PledgeUpdateView(View):
         return render(request, "donation/pledge_form.html", {"form": form, "pledge": pledge})
 
 
-class PledgeDeleteView(View):
+class PledgeDeleteView(LoginRequiredMixin, View):
     def post(self, request, pk):
         pledge = get_object_or_404(Pledge, pk=pk)
         item, selected = pledge.item, pledge.event.date

@@ -111,6 +111,10 @@ AUTH_USER_MODEL = "core.User"
 # Doação — quantos domingos ficam abertos pra receber doações
 UPCOMING_SUNDAYS_COUNT = 3
 
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "login"
+
 # Configurações de segurança pra produção
 if not DEBUG:
     from django.core.exceptions import ImproperlyConfigured

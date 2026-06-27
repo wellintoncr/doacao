@@ -19,10 +19,25 @@
     <header class="topbar">
         <div class="topbar-inner">
             <a href="{% url 'event-detail' %}" class="brand">Doação</a>
-            <a href="{% url 'profile' %}" id="profile-link" class="btn btn-ghost btn-sm">Perfil</a>
+            {% if user.is_authenticated %}
+            <div class="row">
+                <a href="{% url 'profile' %}" id="profile-link" class="btn btn-ghost btn-sm">Perfil</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-ghost btn-sm">Sair</button>
+                </form>
+            </div>
+            {% endif %}
         </div>
     </header>
     <main class="wrap">
+        {% if messages %}
+        <div class="stack messages">
+            {% for message in messages %}
+            <div class="alert a-suc">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
     <script src="{% static 'js/app.js' %}"></script>
