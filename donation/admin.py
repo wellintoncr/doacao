@@ -19,7 +19,7 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(Pledge)
 class PledgeAdmin(admin.ModelAdmin):
-    list_display = ["person_name", "item", "quantity", "event", "created_at"]
+    list_display = ["user", "item", "quantity", "event", "created_at"]
     list_filter = ["event", "item"]
-    search_fields = ["person_name"]
+    search_fields = ["user__name", "user__email"]
     ordering = ["-created_at"]

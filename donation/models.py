@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -43,7 +44,12 @@ class Pledge(models.Model):
 
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="pledges", verbose_name="evento")
     item = models.ForeignKey(Item, on_delete=models.PROTECT, related_name="pledges", verbose_name="item")
-    person_name = models.CharField("nome", max_length=60)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="pledges",
+        verbose_name="voluntário",
+    )
     quantity = models.PositiveIntegerField("quantidade", validators=[MinValueValidator(1)])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -54,4 +60,4 @@ class Pledge(models.Model):
         verbose_name_plural = "doações"
 
     def __str__(self):
-        return f"{self.person_name} ({self.quantity})"
+        return f"{self.user.name} ({self.quantity})"

@@ -35,30 +35,48 @@ def test_event_detail_without_items(auth_client, frozen_today):
 
 
 @pytest.mark.django_db
-def test_event_detail_shows_pledges(auth_client, frozen_today, pledge):
+def test_event_detail_shows_pledges_with_account_name(auth_client, frozen_today, pledge):
     response = auth_client.get(reverse("event-detail"))
     summary = response.context["summaries"][0]
     assert summary["total"] == 10
-    assert "John" in response.content.decode()
+    assert "Voluntário" in response.content.decode()
 
 
 @pytest.mark.django_db
-def test_pledge_create_creates_event_lazily(auth_client, frozen_today, item):
+def test_own_pledge_shows_controls(auth_client, frozen_today, pledge):
+    content = auth_client.get(reverse("event-detail")).content.decode()
+    assert "Editar" in content
+    assert "Remover" in content
+
+
+@pytest.mark.django_db
+def test_foreign_pledge_hides_controls(auth_client, frozen_today, pledge, other_user):
+    pledge.user = other_user
+    pledge.save(update_fields=["user"])
+    content = auth_client.get(reverse("event-detail")).content.decode()
+    assert "Outra Pessoa" in content  # a doação aparece pra todo mundo
+    assert "Editar" not in content  # mas só o autor vê os controles
+    assert "Remover" not in content
+
+
+@pytest.mark.django_db
+def test_pledge_create_creates_event_lazily(auth_client, user, frozen_today, item):
     response = auth_client.post(
         reverse("pledge-add", args=[item.pk]),
-        {"date": "2025-09-21", "quantity": 40, "person_name": "Jane"},
+        {"date": "2025-09-21", "quantity": 40},
     )
     assert response.status_code == 302
     assert response.url == f"{reverse('event-detail')}?date=2025-09-21"
     pledge = Pledge.objects.get()
     assert pledge.event.date == date(2025, 9, 21)
+    assert pledge.user == user
 
 
 @pytest.mark.django_db
 def test_pledge_create_reuses_existing_event(auth_client, frozen_today, event, item):
     auth_client.post(
         reverse("pledge-add", args=[item.pk]),
-        {"date": "2025-09-14", "quantity": 5, "person_name": "Jane"},
+        {"date": "2025-09-14", "quantity": 5},
     )
     assert Event.objects.count() == 1
     assert event.pledges.count() == 1
@@ -68,19 +86,19 @@ def test_pledge_create_reuses_existing_event(auth_client, frozen_today, event, i
 def test_pledge_create_htmx_returns_item_card(auth_client, frozen_today, item):
     response = auth_client.post(
         reverse("pledge-add", args=[item.pk]),
-        {"date": "2025-09-14", "quantity": 5, "person_name": "Jane"},
+        {"date": "2025-09-14", "quantity": 5},
         headers=HTMX,
     )
     assert response.status_code == 200
     assert "donation/partials/item_card.html" in [t.name for t in response.templates]
-    assert "Jane" in response.content.decode()
+    assert "Voluntário" in response.content.decode()
 
 
 @pytest.mark.django_db
 def test_pledge_create_htmx_invalid_shows_errors(auth_client, frozen_today, item):
     response = auth_client.post(
         reverse("pledge-add", args=[item.pk]),
-        {"date": "2025-09-14", "quantity": 0, "person_name": "Jane"},
+        {"date": "2025-09-14", "quantity": 0},
         headers=HTMX,
     )
     assert response.status_code == 200
@@ -92,7 +110,7 @@ def test_pledge_create_htmx_invalid_shows_errors(auth_client, frozen_today, item
 def test_pledge_create_invalid_without_htmx_redirects(auth_client, frozen_today, item):
     response = auth_client.post(
         reverse("pledge-add", args=[item.pk]),
-        {"date": "2025-09-14", "quantity": 0, "person_name": "Jane"},
+        {"date": "2025-09-14", "quantity": 0},
     )
     assert response.status_code == 302
     assert Pledge.objects.count() == 0
@@ -103,7 +121,7 @@ def test_pledge_create_rejects_closed_date(auth_client, frozen_today, item):
     # domingo fora do horizonte configurado ainda não tá aberto pra doações
     response = auth_client.post(
         reverse("pledge-add", args=[item.pk]),
-        {"date": "2025-10-05", "quantity": 5, "person_name": "Jane"},
+        {"date": "2025-10-05", "quantity": 5},
     )
     assert response.status_code == 400
 
@@ -114,7 +132,7 @@ def test_pledge_create_rejects_inactive_item(auth_client, frozen_today, item):
     item.save(update_fields=["is_active"])
     response = auth_client.post(
         reverse("pledge-add", args=[item.pk]),
-        {"date": "2025-09-14", "quantity": 5, "person_name": "Jane"},
+        {"date": "2025-09-14", "quantity": 5},
     )
     assert response.status_code == 404
 
@@ -130,7 +148,7 @@ def test_pledge_edit_page(auth_client, frozen_today, pledge):
 def test_pledge_edit_updates_pledge(auth_client, frozen_today, pledge):
     response = auth_client.post(
         reverse("pledge-edit", args=[pledge.pk]),
-        {"quantity": 25, "person_name": "John"},
+        {"quantity": 25},
     )
     assert response.status_code == 302
     pledge.refresh_from_db()
@@ -141,10 +159,18 @@ def test_pledge_edit_updates_pledge(auth_client, frozen_today, pledge):
 def test_pledge_edit_invalid_rerenders_form(auth_client, frozen_today, pledge):
     response = auth_client.post(
         reverse("pledge-edit", args=[pledge.pk]),
-        {"quantity": 0, "person_name": "John"},
+        {"quantity": 0},
     )
     assert response.status_code == 200
     assert response.context["form"].errors
+
+
+@pytest.mark.django_db
+def test_pledge_edit_denied_for_other_user(auth_client, frozen_today, pledge, other_user):
+    pledge.user = other_user
+    pledge.save(update_fields=["user"])
+    assert auth_client.get(reverse("pledge-edit", args=[pledge.pk])).status_code == 404
+    assert auth_client.post(reverse("pledge-edit", args=[pledge.pk]), {"quantity": 99}).status_code == 404
 
 
 @pytest.mark.django_db
@@ -160,6 +186,14 @@ def test_pledge_delete_htmx_returns_item_card(auth_client, frozen_today, pledge)
     assert response.status_code == 200
     assert "donation/partials/item_card.html" in [t.name for t in response.templates]
     assert Pledge.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_pledge_delete_denied_for_other_user(auth_client, frozen_today, pledge, other_user):
+    pledge.user = other_user
+    pledge.save(update_fields=["user"])
+    assert auth_client.post(reverse("pledge-delete", args=[pledge.pk])).status_code == 404
+    assert Pledge.objects.count() == 1
 
 
 @pytest.mark.django_db
@@ -180,8 +214,7 @@ def test_pledge_endpoints_require_login(client, frozen_today, pledge):
 @pytest.mark.django_db
 def test_board_content_details(auth_client, frozen_today, item):
     content = auth_client.get(reverse("event-detail")).content.decode()
-    # link do perfil na navbar, guard de nome e campo escondido de nome
-    assert reverse("profile") in content
-    assert "js/profile-guard.js" in content
-    assert 'type="hidden" name="person_name"' in content
-    assert 'placeholder="Seu nome"' not in content
+    # navbar mostra o nome da conta; o formulário só pede quantidade
+    assert "Perfil · Voluntário" in content
+    assert 'name="person_name"' not in content
+    assert "profile-guard" not in content

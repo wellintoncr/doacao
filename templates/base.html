@@ -13,7 +13,6 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'icons/apple-touch-icon.png' %}">
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
     <script src="{% static 'js/htmx.min.js' %}"></script>
-    {% block head_js %}{% endblock %}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <header class="topbar">
@@ -21,7 +20,7 @@
             <a href="{% url 'event-detail' %}" class="brand">Doação</a>
             {% if user.is_authenticated %}
             <div class="row">
-                <a href="{% url 'profile' %}" id="profile-link" class="btn btn-ghost btn-sm">Perfil</a>
+                <a href="{% url 'profile' %}" class="btn btn-ghost btn-sm">Perfil · {{ user.name }}</a>
                 <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-ghost btn-sm">Sair</button>
@@ -40,7 +39,5 @@
         {% endif %}
         {% block content %}{% endblock %}
     </main>
-    <script src="{% static 'js/app.js' %}"></script>
-    {% block extra_js %}{% endblock %}
 </body>
 </html>

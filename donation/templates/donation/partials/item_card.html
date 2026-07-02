@@ -15,7 +15,8 @@
     <ul class="pledges">
         {% for pledge in summary.pledges %}
         <li class="pledge-row">
-            <span><b>{{ pledge.person_name }}</b> — {{ pledge.quantity }} {{ summary.item.unit }}</span>
+            <span><b>{{ pledge.user.name }}</b> — {{ pledge.quantity }} {{ summary.item.unit }}</span>
+            {% if pledge.user_id == request.user.id %}
             <span class="row">
                 <a class="btn btn-ghost btn-sm" href="{% url 'pledge-edit' pledge.pk %}">Editar</a>
                 <form method="post" action="{% url 'pledge-delete' pledge.pk %}"
@@ -26,6 +27,7 @@
                     <button class="btn btn-ghost btn-sm danger">Remover</button>
                 </form>
             </span>
+            {% endif %}
         </li>
         {% endfor %}
     </ul>
@@ -39,14 +41,11 @@
             <input class="inp qty" type="number" name="quantity" min="1" required
                    aria-label="Quantidade" placeholder="Qtd."
                    value="{{ form.quantity.value|default:'' }}">
-            <input type="hidden" name="person_name" data-remember-name
-                   value="{{ form.person_name.value|default:'' }}">
             <button type="submit" class="btn btn-primary">Vou levar</button>
         </div>
         {% if form.errors %}
         <div class="field error">
             {% for error in form.quantity.errors %}<p class="help">{{ error }}</p>{% endfor %}
-            {% for error in form.person_name.errors %}<p class="help">{{ error }}</p>{% endfor %}
         </div>
         {% endif %}
     </form>

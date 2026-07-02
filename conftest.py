@@ -15,6 +15,11 @@ def user(db):
 
 
 @pytest.fixture
+def other_user(db):
+    return User.objects.create_user(email="outra@example.com", password="senha-forte-123", name="Outra Pessoa")
+
+
+@pytest.fixture
 def auth_client(client, user):
     client.force_login(user)
     return client

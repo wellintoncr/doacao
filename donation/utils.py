@@ -40,7 +40,7 @@ def get_item_summaries(event):
     """Totais de doação por item de um evento; o evento pode nem existir ainda (sem doações)."""
     pledges_by_item = defaultdict(list)
     if event is not None:
-        for pledge in event.pledges.all():
+        for pledge in event.pledges.select_related("user"):
             pledges_by_item[pledge.item_id].append(pledge)
     items = Item.objects.filter(is_active=True)
     return [summarize_item(item, pledges_by_item[item.pk]) for item in items]

@@ -6,11 +6,11 @@ from .utils import random_pk
 
 
 @pytest.fixture
-def pledge(db, event, item):
+def pledge(db, event, item, user):
     return Pledge.objects.create(
         id=random_pk(),
         event=event,
         item=item,
-        person_name="John",
+        user=user,
         quantity=10,
     )

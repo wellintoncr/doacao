@@ -13,4 +13,4 @@ def test_event_str(event):
 
 @pytest.mark.django_db
 def test_pledge_str(pledge):
-    assert str(pledge) == "John (10)"
+    assert str(pledge) == "Voluntário (10)"

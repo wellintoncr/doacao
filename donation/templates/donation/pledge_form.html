@@ -10,7 +10,6 @@
 <form method="post" class="card stack form-page">
     {% csrf_token %}
     <c-form-field :field="form.quantity" />
-    <c-form-field :field="form.person_name" />
     <div class="row">
         <c-button>Salvar</c-button>
         <c-button variant="secondary" href="{% url 'event-detail' %}?date={{ pledge.event.date|date:'Y-m-d' }}">Cancelar</c-button>

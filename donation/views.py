@@ -16,7 +16,7 @@ def _event_url(selected):
 
 def _render_item_card(request, item, selected, form=None):
     event = Event.objects.filter(date=selected).first()
-    pledges = list(event.pledges.filter(item=item)) if event else []
+    pledges = list(event.pledges.filter(item=item).select_related("user")) if event else []
     return render(
         request,
         "donation/partials/item_card.html",
@@ -58,6 +58,7 @@ class PledgeCreateView(LoginRequiredMixin, View):
                 pledge = form.save(commit=False)
                 pledge.event = event
                 pledge.item = item
+                pledge.user = request.user
                 pledge.save()
             form = None
         if request.htmx:
@@ -67,16 +68,20 @@ class PledgeCreateView(LoginRequiredMixin, View):
 
 class PledgeUpdateView(LoginRequiredMixin, View):
     def get(self, request, pk):
-        pledge = get_object_or_404(Pledge, pk=pk)
+        pledge = self._get_own_pledge(request, pk)
         return self._render_form(request, pledge, PledgeForm(instance=pledge))
 
     def post(self, request, pk):
-        pledge = get_object_or_404(Pledge, pk=pk)
+        pledge = self._get_own_pledge(request, pk)
         form = PledgeForm(request.POST, instance=pledge)
         if not form.is_valid():
             return self._render_form(request, pledge, form)
         form.save()
         return redirect(_event_url(pledge.event.date))
+
+    def _get_own_pledge(self, request, pk):
+        # só o autor mexe na própria doação; o resto é papel do django admin
+        return get_object_or_404(Pledge, pk=pk, user=request.user)
 
     def _render_form(self, request, pledge, form):
         return render(request, "donation/pledge_form.html", {"form": form, "pledge": pledge})
@@ -84,7 +89,7 @@ class PledgeUpdateView(LoginRequiredMixin, View):
 
 class PledgeDeleteView(LoginRequiredMixin, View):
     def post(self, request, pk):
-        pledge = get_object_or_404(Pledge, pk=pk)
+        pledge = get_object_or_404(Pledge, pk=pk, user=request.user)
         item, selected = pledge.item, pledge.event.date
         pledge.delete()
         if request.htmx:
