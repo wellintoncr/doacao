@@ -16,9 +16,15 @@
     {% endfor %}
 </nav>
 
-<div class="grid autofit items">
+{# hx-disinherit impede que os forms dos cards herdem o hx-select do poll — sem isso a resposta do submit/remoção vinha "vazia" e o card sumia até o próximo poll #}
+<div class="grid autofit items" id="item-list"
+     hx-get="{% url 'event-detail' %}?date={{ selected|date:'Y-m-d' }}"
+     hx-trigger="every 10s"
+     hx-select="#item-list"
+     hx-swap="outerHTML"
+     hx-disinherit="*">
     {% for summary in summaries %}
-        {% include "donation/partials/item_card.html" with summary=summary selected=selected form=pledge_form %}
+        {% include "donation/partials/item_card.html" with summary=summary selected=selected form=pledge_form preserve_inputs=True %}
     {% empty %}
     <div class="empty">
         <h4>Nenhum item cadastrado</h4>

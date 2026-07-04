@@ -218,3 +218,25 @@ def test_board_content_details(auth_client, frozen_today, item):
     assert "Perfil · Voluntário" in content
     assert 'name="person_name"' not in content
     assert "profile-guard" not in content
+
+
+@pytest.mark.django_db
+def test_board_polls_every_ten_seconds(auth_client, frozen_today, item):
+    content = auth_client.get(reverse("event-detail")).content.decode()
+    assert 'hx-trigger="every 10s"' in content
+    assert 'hx-select="#item-list"' in content
+    # os forms dos cards não podem herdar o hx-select do poll (o card sumia na remoção)
+    assert 'hx-disinherit="*"' in content
+    # no poll, o campo de quantidade preserva o que tá sendo digitado
+    assert "hx-preserve" in content
+
+
+@pytest.mark.django_db
+def test_submit_response_clears_quantity_input(auth_client, frozen_today, item):
+    response = auth_client.post(
+        reverse("pledge-add", args=[item.pk]),
+        {"date": "2025-09-14", "quantity": 5},
+        headers=HTMX,
+    )
+    # a resposta do submit não pode preservar o campo, senão ele nunca limpa
+    assert "hx-preserve" not in response.content.decode()

@@ -38,7 +38,9 @@
         {% csrf_token %}
         <input type="hidden" name="date" value="{{ selected|date:'Y-m-d' }}">
         <div class="row">
+            {# no render do poll o hx-preserve segura o que a pessoa tá digitando; na resposta do submit ele fica de fora pro campo limpar #}
             <input class="inp qty" type="number" name="quantity" min="1" required
+                   id="qty-{{ summary.item.pk }}" {% if preserve_inputs %}hx-preserve{% endif %}
                    aria-label="Quantidade" placeholder="Qtd."
                    value="{{ form.quantity.value|default:'' }}">
             <button type="submit" class="btn btn-primary">Vou levar</button>
