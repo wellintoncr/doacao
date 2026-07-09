@@ -400,6 +400,14 @@
     color: var(--text-secondary);
     max-width: 60ch;
   }
+  .sub {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--text-muted);
+    margin: 24px 0 12px;
+  }
   .seg {
     display: inline-flex;
     gap: 4px;
@@ -650,6 +658,16 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+  .item-card.completed {
+    background: var(--success-soft);
+    border-color: var(--success);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in srgb, var(--success) 35%, var(--border));
+    }
+  }
+  .item-card.completed .progress > i {
+    background: var(--success);
   }
   .item-head {
     display: flex;

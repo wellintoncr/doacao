@@ -33,13 +33,15 @@ class EventDetailView(LoginRequiredMixin, View):
         sundays = upcoming_sundays()
         selected = parse_sunday(request.GET.get("date")) or sundays[0]
         event = Event.objects.filter(date=selected).first()
+        summaries = get_item_summaries(event)
         return render(
             request,
             "donation/event_detail.html",
             {
                 "sundays": sundays,
                 "selected": selected,
-                "summaries": get_item_summaries(event),
+                "pending": [summary for summary in summaries if not summary["is_satisfied"]],
+                "completed": [summary for summary in summaries if summary["is_satisfied"]],
                 "pledge_form": PledgeForm(),
             },
         )

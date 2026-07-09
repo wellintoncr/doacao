@@ -31,15 +31,40 @@ def test_event_detail_falls_back_on_invalid_date(auth_client, frozen_today):
 @pytest.mark.django_db
 def test_event_detail_without_items(auth_client, frozen_today):
     response = auth_client.get(reverse("event-detail"))
-    assert response.context["summaries"] == []
+    assert response.context["pending"] == []
+    assert response.context["completed"] == []
+    assert "Nenhum item cadastrado" in response.content.decode()
 
 
 @pytest.mark.django_db
 def test_event_detail_shows_pledges_with_account_name(auth_client, frozen_today, pledge):
     response = auth_client.get(reverse("event-detail"))
-    summary = response.context["summaries"][0]
+    summary = response.context["pending"][0]
     assert summary["total"] == 10
     assert "Voluntário" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_pending_item_stays_out_of_completed_section(auth_client, frozen_today, pledge):
+    response = auth_client.get(reverse("event-detail"))
+    content = response.content.decode()
+    assert response.context["completed"] == []
+    assert "Pendentes" in content
+    assert "Completos" not in content
+    assert "item-card completed" not in content
+
+
+@pytest.mark.django_db
+def test_satisfied_item_moves_to_completed_section(auth_client, frozen_today, pledge):
+    pledge.quantity = pledge.item.target_quantity
+    pledge.save(update_fields=["quantity"])
+    response = auth_client.get(reverse("event-detail"))
+    content = response.content.decode()
+    assert response.context["pending"] == []
+    assert len(response.context["completed"]) == 1
+    assert "Completos" in content
+    assert "Pendentes" not in content
+    assert "item-card completed" in content
 
 
 @pytest.mark.django_db
