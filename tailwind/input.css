@@ -13,7 +13,9 @@
         --surface: #FFFFFF;
         --sunken: #F1F2F4;
         --elevated: #FFFFFF;
-        --border: #E4E6EA;
+        /* escurecido em relação ao design-system (#E4E6EA): a 1px o valor
+           original praticamente some em monitor real, no modo claro */
+        --border: #D4D8DE;
         --border-strong: #C5C9D0;
         --text: #16181D;
         --text-secondary: #525761;
